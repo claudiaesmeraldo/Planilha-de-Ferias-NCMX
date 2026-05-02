@@ -37,19 +37,25 @@ if uploaded_file:
         # Remove linhas completamente vazias
         df = df.dropna(how='all')
         
-        # Identifica a coluna de data (procura pela coluna com "gozo")
-        data_columns = [col for col in df.columns if 'gozo' in col.lower()]
+        # Identifica a coluna de data de início do gozo de férias
+        # Procura pela coluna que contém "PROGRAMAÇÃO" E "gozo"
+        data_columns = [col for col in df.columns if 'PROGRAMAÇÃO' in col and 'gozo' in col.lower()]
         
         if not data_columns:
-            # Se não encontrar com "gozo", tenta variação genérica
-            data_columns = [col for col in df.columns if 'Data' in col and ('Ini' in col or 'data' in col.lower())]
+            # Se não encontrar, tenta só com "gozo"
+            data_columns = [col for col in df.columns if 'gozo' in col.lower()]
         
         if not data_columns:
-            st.error("❌ Nenhuma coluna de data de início encontrada!")
-            st.error(f"📋 Colunas disponíveis: {list(df.columns)}")
+            # Fallback genérico
+            data_columns = [col for col in df.columns if 'Data' in col and 'Ini' in col]
+        
+        if not data_columns:
+            st.error("❌ Nenhuma coluna de data de início de férias encontrada!")
+            st.error(f"📋 Colunas disponíveis:\n{chr(10).join(df.columns)}")
             st.stop()
         
         coluna_data = data_columns[0]
+        st.sidebar.success(f"✅ Usando coluna: '{coluna_data}'")
         
         # Converte para datetime
         df[coluna_data] = pd.to_datetime(
