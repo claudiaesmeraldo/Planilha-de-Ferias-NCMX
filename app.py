@@ -37,11 +37,16 @@ if uploaded_file:
         # Remove linhas completamente vazias
         df = df.dropna(how='all')
         
-        # Identifica a coluna de data (pode ter variações de nome)
-        data_columns = [col for col in df.columns if 'Data' in col and ('Ini' in col or 'data' in col.lower())]
+        # Identifica a coluna de data (procura pela coluna com "gozo")
+        data_columns = [col for col in df.columns if 'gozo' in col.lower()]
+        
+        if not data_columns:
+            # Se não encontrar com "gozo", tenta variação genérica
+            data_columns = [col for col in df.columns if 'Data' in col and ('Ini' in col or 'data' in col.lower())]
         
         if not data_columns:
             st.error("❌ Nenhuma coluna de data de início encontrada!")
+            st.error(f"📋 Colunas disponíveis: {list(df.columns)}")
             st.stop()
         
         coluna_data = data_columns[0]
@@ -113,7 +118,9 @@ if uploaded_file:
         
         with col2:
             if "Dias direito" in df_filtrado.columns:
-                dias_totais = df_filtrado["Dias direito"].sum()
+                # Converte para número, tratando strings e valores inválidos
+                dias_col = pd.to_numeric(df_filtrado["Dias direito"], errors='coerce')
+                dias_totais = dias_col.sum()
                 st.metric("📆 Dias Totais", f"{dias_totais:.0f}")
             else:
                 st.metric("📆 Dias Totais", "N/A")
