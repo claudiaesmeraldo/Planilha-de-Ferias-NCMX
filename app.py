@@ -1,27 +1,13 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from datetime import datetime
-import plotly.express as px
 
 # ======== CONFIGURAÇÃO DA PÁGINA ========
 st.set_page_config(
     page_title="Dashboard de Férias 2026",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# ======== ESTILOS ========
-st.markdown("""
-    <style>
-    .metric-card {
-        background-color: #f0f2f6;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-    }
-    </style>
-    """, unsafe_allow_html=True)
 
 st.title("📊 Dashboard de Programação de Férias 2026")
 st.markdown("""
@@ -146,31 +132,22 @@ if uploaded_file:
             else:
                 st.metric("🏢 Empresas", "N/A")
         
-        # ======== GRÁFICOS ========
+        # ======== GRÁFICOS SIMPLES ========
         st.subheader("📈 Análise Visual")
         
         col_chart1, col_chart2 = st.columns(2)
         
         with col_chart1:
             if "Gestor" in df_filtrado.columns and len(df_filtrado) > 0:
+                st.write("**👤 Top Gestores com mais férias agendadas**")
                 chart_data = df_filtrado["Gestor"].value_counts().head(10)
-                fig = px.bar(
-                    x=chart_data.index,
-                    y=chart_data.values,
-                    title="👤 Top 10 Gestores com mais férias agendadas",
-                    labels={"x": "Gestor", "y": "Quantidade"}
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                st.bar_chart(chart_data)
         
         with col_chart2:
             if "Empresa" in df_filtrado.columns and len(df_filtrado) > 0:
-                chart_data = df_filtrado["Empresa"].value_counts().head(10)
-                fig = px.pie(
-                    values=chart_data.values,
-                    names=chart_data.index,
-                    title="🏢 Distribuição por Empresa"
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                st.write("**🏢 Distribuição por Empresa**")
+                chart_data = df_filtrado["Empresa"].value_counts()
+                st.bar_chart(chart_data)
         
         # ======== TABELA DE DADOS ========
         st.subheader(f"👥 Colaboradores - Competência {competencia_selecionada}")
